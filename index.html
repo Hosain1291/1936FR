@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1936, 난동의 질</title>
+
+    <!-- Tailwind CSS for basic structure -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom Korean Font */
+        @font-face {
+            font-family: 'SkyblessingInjeFontTTF';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2507-1@1.0/SkyblessingInjeFontTTF.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* Global Styles */
+        body {
+            /* Set font stack: Korean first, then fallback to Latin/numbers font */
+            font-family: 'SkyblessingInjeFontTTF', 'Playfair Display', serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        
+        /* Blurred background image */
+        .background-image-blur {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/a/a2/Front_populaire_1936.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px) grayscale(50%);
+            transform: scale(1.1);
+            z-index: -1;
+        }
+
+        /* Main container */
+        .content-wrapper {
+            width: 100%;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Party input cards */
+        .party-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .party-card {
+            width: 100%;
+            height: 130px;
+            border-radius: 12px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            text-align: center;
+            padding: 0.5rem;
+            font-weight: 700;
+        }
+
+        .party-card input {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            width: 70px;
+            text-align: center;
+            font-size: 1.5rem;
+            margin: 0.25rem 0;
+            border-radius: 4px;
+            border: none;
+            padding: 4px;
+            color: rgba(255, 255, 255, 0.9);
+            background-color: transparent;
+            border-bottom: 2px solid rgba(255,255,255,0.5);
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .party-card input:focus {
+            color: white;
+            border-bottom-color: white;
+            outline: none;
+        }
+        
+        .party-card small {
+            font-size: 0.85rem; /* Slightly larger for new font */
+            opacity: 0.9;
+            line-height: 1.2;
+            font-weight: 400;
+        }
+
+        /* Calculate Button */
+        .calculate-button {
+            font-weight: 700;
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.25rem;
+            background: #4A4A4A; /* Changed button color */
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .calculate-button:hover {
+            background: #333333; /* Darker hover color */
+        }
+
+        /* Results Section */
+        .results-container {
+            margin-top: 2.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            visibility: hidden;
+        }
+        .results-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .seat-projection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .projection-party-card {
+            width: 100%;
+            height: 120px;
+            border-radius: 12px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            text-align: center;
+            padding: 10px;
+            font-weight: 700;
+        }
+
+        .projection-party-name { 
+            font-size: 1.2em; /* Slightly larger for new font */
+            margin-bottom: 5px; 
+            font-weight: 400;
+        }
+        .projection-seats { font-size: 2.5em; line-height: 1; font-weight: 700; }
+
+        /* Bar Chart */
+        .seat-bar-container {
+            width: 100%;
+            height: 30px;
+            background-color: #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 2rem;
+            display: flex;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        .seat-bar-segment {
+            height: 100%;
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-image-blur"></div>
+    <div class="content-wrapper">
+        <h2>🗳️ 1936, 난동의 질</h2>
+
+        <div class="party-grid" id="partyGrid">
+            <!-- Party input cards will be rendered here by JS -->
+        </div>
+
+        <button class="calculate-button" onclick="runPrediction()">결과 계산</button>
+
+        <div id="resultsContainer" class="results-container">
+            <h2 id="resultsTitle" style="font-size: 1.5rem;">예상 의석수 (총 618석)</h2>
+            <div class="seat-projection-grid" id="seatProjectionGrid"></div>
+            <div class="seat-bar-container" id="seatBarContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const PARTIES = {
+            'sfio': { name: '노동자 인터내셔널', color: '#BE0000' },
+            'pcf': { name: '공산당', color: '#A50000' },
+            'pr': { name: '급진사회당', color: '#E6B5E6' },
+            'usr': { name: '사회주의 공화연합', color: '#000000' },
+            'dvg': { name: '기타 좌파', color: '#FFC0CB' },
+            'gr': { name: '공화좌파', color: '#FFD700' },
+            'ur': { name: '공화연합', color: '#004A80' }
+        };
+        
+        const TOTAL_SEATS = 618;
+
+        // Based on the first round of the 1936 French legislative election
+        const INITIAL_VOTE_SHARES = { 
+            sfio: 19.2, 
+            pcf: 15.3, 
+            pr: 14.5, 
+            usr: 2.6, 
+            dvg: 2.2,
+            gr: 9.8,
+            ur: 13.0
+        };
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPartyCards();
+        });
+
+        // --- UI SETUP ---
+        function renderPartyCards() {
+            const grid = document.getElementById("partyGrid");
+            grid.innerHTML = "";
+            Object.keys(PARTIES).forEach(key => {
+                const party = PARTIES[key];
+                const card = document.createElement("div");
+                card.className = "party-card";
+                card.style.backgroundColor = party.color;
+                
+                if (['pr', 'dvg', 'gr'].includes(key)) {
+                    card.style.color = '#333';
+                    card.innerHTML = `<div>${party.name}</div><input type="number" id="${key}-vote" value="${INITIAL_VOTE_SHARES[key]}" step="0.1" style="color: #333; border-bottom-color: rgba(0,0,0,0.4);"><small>득표율(%)</small>`;
+                } else {
+                    card.innerHTML = `<div>${party.name}</div><input type="number" id="${key}-vote" value="${INITIAL_VOTE_SHARES[key]}" step="0.1"><small>득표율(%)</small>`;
+                }
+                grid.appendChild(card);
+            });
+        }
+        
+        function allocateSeats(voteShares, numSeats) {
+            const seats = {};
+            const remainders = {};
+            let allocatedSeats = 0;
+            const totalVotes = Object.values(voteShares).reduce((a, b) => a + b, 0);
+
+            if (totalVotes === 0) return seats;
+
+            Object.keys(voteShares).forEach(key => {
+                const exactSeats = (voteShares[key] / totalVotes) * numSeats;
+                seats[key] = Math.floor(exactSeats);
+                remainders[key] = exactSeats - seats[key];
+                allocatedSeats += seats[key];
+            });
+
+            let remainingSeats = numSeats - allocatedSeats;
+            if (remainingSeats > 0) {
+                const sortedRemainders = Object.keys(remainders).sort((a, b) => remainders[b] - remainders[a]);
+                for (let i = 0; i < remainingSeats; i++) {
+                    seats[sortedRemainders[i]]++;
+                }
+            }
+            return seats;
+        }
+
+        // --- CORE LOGIC & UI UPDATE ---
+        function runPrediction() {
+            const currentShares = {};
+            Object.keys(PARTIES).forEach(key => {
+                currentShares[key] = parseFloat(document.getElementById(`${key}-vote`).value) || 0;
+            });
+
+            const finalSeats = allocateSeats(currentShares, TOTAL_SEATS);
+
+            // --- Update UI ---
+            const resultsContainer = document.getElementById('resultsContainer');
+            const seatProjectionGrid = document.getElementById('seatProjectionGrid');
+            const seatBarContainer = document.getElementById('seatBarContainer');
+            seatProjectionGrid.innerHTML = '';
+            seatBarContainer.innerHTML = '';
+
+            const sortedParties = Object.keys(finalSeats).sort((a,b) => finalSeats[b] - finalSeats[a]);
+
+            sortedParties.forEach(key => {
+                const party = PARTIES[key];
+                const seats = finalSeats[key];
+                if (seats === 0) return;
+                
+                const resultCard = document.createElement("div");
+                resultCard.className = "projection-party-card";
+                resultCard.style.backgroundColor = party.color;
+                if (['pr', 'dvg', 'gr'].includes(key)) resultCard.style.color = '#333';
+
+                resultCard.innerHTML = `<div class="projection-party-name">${party.name}</div><div class="projection-seats">${seats}</div>`;
+                seatProjectionGrid.appendChild(resultCard);
+
+                const segment = document.createElement('div');
+                segment.className = 'seat-bar-segment';
+                segment.style.backgroundColor = party.color;
+                segment.style.width = `${(seats / TOTAL_SEATS) * 100}%`;
+                
+                seatBarContainer.appendChild(segment);
+            });
+            
+            resultsContainer.classList.add('visible');
+        }
+    </script>
+</body>
+</html>
